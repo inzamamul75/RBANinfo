@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Egiye Bangladesh - Runner Info</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     :root {
       --blue: #004aad;
@@ -23,8 +23,14 @@
       text-align: center;
       padding: 30px 20px 10px;
     }
-    header h1 { font-size: 36px; margin: 10px 0; }
-    header h2 { margin: 5px; font-weight: normal; }
+    header h1 {
+      font-size: 36px;
+      margin: 10px 0;
+    }
+    header h3 {
+      margin: 5px;
+      font-weight: normal;
+    }
     .search-box {
       text-align: center;
       margin: 40px auto 10px;
@@ -48,21 +54,38 @@
       cursor: pointer;
       margin-left: 10px;
     }
-    button:hover { background: #001f40; }
+    button:hover {
+      background: #001f40;
+    }
     #output {
       background: var(--white);
       margin: 30px auto;
       padding: 40px;
       border-radius: 20px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
       max-width: 800px;
       width: 95%;
       text-align: center;
+      transition: all 0.3s ease;
     }
     #output img {
-      max-width: 220px;
+      max-width: 180px;
       margin-bottom: 25px;
       border-radius: 12px;
+    }
+    #output h2 {
+      color: var(--blue);
+      font-size: 35px;
+      font-weight: bold;
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    #output h2::before {
+      content: "🏃‍♂️";
+      font-size: 28px;
     }
     table {
       width: 100%;
@@ -71,9 +94,11 @@
       overflow: hidden;
       border-radius: 12px;
     }
-    table tr:nth-child(even) { background-color: #f2f6ff; }
+    table tr:nth-child(even) {
+      background-color: #f2f6ff;
+    }
     td {
-      border: 1px solid #ccc;
+      border: 1px solid #ddd;
       padding: 14px 16px;
       text-align: center;
     }
@@ -82,6 +107,19 @@
       color: white;
       font-weight: 600;
       width: 35%;
+      text-align: center;
+    }
+    @media (max-width: 600px) {
+      #output {
+        padding: 20px;
+      }
+      td {
+        font-size: 16px;
+        padding: 10px;
+      }
+      table {
+        font-size: 16px;
+      }
     }
     #not-found {
       text-align: center;
@@ -97,6 +135,12 @@
       margin-top: 40px;
       font-size: 15px;
     }
+    @media (max-width: 600px) {
+      input[type="text"], button {
+        width: 90%;
+        margin: 5px 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -108,9 +152,8 @@
 </header>
 
 <div class="search-box">
-  <input type="text" id="bibInput" placeholder="Enter BIB or EXTERNAL_ID" autofocus />
+  <input type="text" id="bibInput" placeholder="Enter BIB or EXTERNAL_ID">
   <button onclick="searchRunner()">Search</button>
-  <button onclick="promptKitDistribution()">Kit Distribution</button>
 </div>
 
 <div id="not-found"></div>
@@ -139,6 +182,7 @@
     const notFound = document.getElementById("not-found");
 
     const allData = [...data15k, ...data75k];
+
     const runner = allData.find(r =>
       normalize(r["BIB"]) === input || normalize(r["EXTERNAL_ID"]) === input
     );
@@ -147,9 +191,7 @@
       notFound.innerHTML = "";
       out.style.display = "block";
       out.innerHTML = `
-        <div style="text-align: center;">
-          <img src="Rban-timing-logo.png" alt="Logo" />
-        </div>
+        <img src="Rban-timing-logo.png" alt="Logo">
         <h2>🏃 Runner Details</h2>
         <table>
           <tr><td class="label">Name</td><td>${runner.FIRST_NAME || ""} ${runner.LAST_NAME || ""}</td></tr>
@@ -161,53 +203,14 @@
           <tr><td class="label">Race Category</td><td>${runner["RACE CATEGORY"] || "—"}</td></tr>
           <tr><td class="label">Mobile Number</td><td>${runner.PHONE || "—"}</td></tr>
           <tr><td class="label">E-Mail</td><td>${runner.EMAIL || "—"}</td></tr>
-          <tr><td class="label">Kit Distribution</td><td>${runner["KIT DISTRIBUTION"] === "YES" ? "Yes" : "Kit not collected"}</td></tr>
-          <tr><td class="label">Received By</td><td>${runner["KIT DISTRIBUTION RECIEVE"] || "—"}</td></tr>
+          <tr><td class="label">Kit Distribution</td><td>${runner["KIT DISTRIBUTION"] === "Done" ? "✅ Done" : "❌ Not Collected"}</td></tr>
+          <tr><td class="label">Collected By</td><td>${runner["KIT DISTRIBUTION RECIEVE"] || "—"}</td></tr>
         </table>
       `;
     } else {
       out.style.display = "none";
       notFound.innerHTML = `<p>🚫 Runner not found. Please check the BIB or EXTERNAL_ID again.</p>`;
     }
-  }
-
-  function promptKitDistribution() {
-    const input = normalize(document.getElementById("bibInput").value);
-    if (!input) {
-      alert("Please enter BIB or EXTERNAL_ID first.");
-      return;
-    }
-
-    const confirmYes = confirm("Has this runner collected the kit?");
-    if (confirmYes) {
-      const receiver = prompt("Enter collector BIB or Mobile Number:");
-      updateKitDistribution(input, receiver);
-    }
-  }
-
-  function updateKitDistribution(identifier, receiver) {
-    fetch("https://script.google.com/macros/s/AKfycbyVPx3KpmC9iRoIHKWS0lfIPEinkBxmmfFpU8zdEr1BhwEOHgDq-jFC2E6X2nKjVLdiow/exec", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id: identifier,
-        kit: "YES",
-        receive_by: receiver
-      })
-    })
-      .then(res => res.json())
-      .then(res => {
-        if (res.success) {
-          alert("Kit Distribution updated!");
-          searchRunner();
-        } else {
-          alert("Update failed.");
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        alert("Error updating sheet.");
-      });
   }
 </script>
 
