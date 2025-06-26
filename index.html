@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Egiye Bangladesh - Runner Info</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --blue: #004aad;
+      --navy: #002b5c;
+      --light: #f9f9f9;
+      --white: #ffffff;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--light);
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: var(--blue);
+      color: var(--white);
+      text-align: center;
+      padding: 30px 20px 10px;
+    }
+    header h1 { font-size: 36px; margin: 10px 0; }
+    header h2 { margin: 5px; font-weight: normal; }
+    .search-box {
+      text-align: center;
+      margin: 40px auto 10px;
+    }
+    input[type="text"] {
+      padding: 12px;
+      font-size: 18px;
+      width: 240px;
+      max-width: 90%;
+      border: 2px solid var(--navy);
+      border-radius: 5px;
+      outline: none;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 18px;
+      background: var(--navy);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    button:hover { background: #001f40; }
+    #output {
+      background: var(--white);
+      margin: 30px auto;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      max-width: 800px;
+      width: 95%;
+      text-align: center;
+    }
+    #output img {
+      max-width: 220px;
+      margin-bottom: 25px;
+      border-radius: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 18px;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+    table tr:nth-child(even) { background-color: #f2f6ff; }
+    td {
+      border: 1px solid #ccc;
+      padding: 14px 16px;
+      text-align: center;
+    }
+    td.label {
+      background-color: var(--blue);
+      color: white;
+      font-weight: 600;
+      width: 35%;
+    }
+    #not-found {
+      text-align: center;
+      font-size: 20px;
+      color: red;
+      margin-top: 20px;
+    }
+    footer {
+      background: var(--navy);
+      color: #ccc;
+      text-align: center;
+      padding: 15px;
+      margin-top: 40px;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Egiye Bangladesh 15K 2025</h1>
+  <h2>Organised By : Buy Digital</h2>
+  <h2>In Association With : Run Bangladesh</h2>
+</header>
+
+<div class="search-box">
+  <input type="text" id="bibInput" placeholder="Enter BIB or EXTERNAL_ID" autofocus />
+  <button onclick="searchRunner()">Search</button>
+  <button onclick="promptKitDistribution()">Kit Distribution</button>
+</div>
+
+<div id="not-found"></div>
+<div id="output" style="display: none;"></div>
+
+<footer>
+  Timing by Rban Timing Solutions.
+</footer>
+
+<script>
+  let data15k = [], data75k = [];
+
+  const url15k = "https://opensheet.vercel.app/1uHIbbjTQsw86j945z1fBHddKgQmNZ6fD6Lu0KysaC2M/EB%2015K";
+  const url75k = "https://opensheet.vercel.app/1uHIbbjTQsw86j945z1fBHddKgQmNZ6fD6Lu0KysaC2M/EB7.5K";
+
+  fetch(url15k).then(res => res.json()).then(data => data15k = data);
+  fetch(url75k).then(res => res.json()).then(data => data75k = data);
+
+  function normalize(str) {
+    return (str || "").toString().trim().toLowerCase();
+  }
+
+  function searchRunner() {
+    const input = normalize(document.getElementById("bibInput").value);
+    const out = document.getElementById("output");
+    const notFound = document.getElementById("not-found");
+
+    const allData = [...data15k, ...data75k];
+    const runner = allData.find(r =>
+      normalize(r["BIB"]) === input || normalize(r["EXTERNAL_ID"]) === input
+    );
+
+    if (runner) {
+      notFound.innerHTML = "";
+      out.style.display = "block";
+      out.innerHTML = `
+        <div style="text-align: center;">
+          <img src="Rban-timing-logo.png" alt="Logo" />
+        </div>
+        <h2>🏃 Runner Details</h2>
+        <table>
+          <tr><td class="label">Name</td><td>${runner.FIRST_NAME || ""} ${runner.LAST_NAME || ""}</td></tr>
+          <tr><td class="label">BIB</td><td>${runner.BIB || "—"}</td></tr>
+          <tr><td class="label">EXTERNAL ID</td><td>${runner.EXTERNAL_ID || "—"}</td></tr>
+          <tr><td class="label">Gender</td><td>${runner.GENDER || "—"}</td></tr>
+          <tr><td class="label">Race</td><td>${runner.RACE_NAME || "—"}</td></tr>
+          <tr><td class="label">T-Shirt</td><td>${runner["T-Shirt Size"] || "—"}</td></tr>
+          <tr><td class="label">Race Category</td><td>${runner["RACE CATEGORY"] || "—"}</td></tr>
+          <tr><td class="label">Mobile Number</td><td>${runner.PHONE || "—"}</td></tr>
+          <tr><td class="label">E-Mail</td><td>${runner.EMAIL || "—"}</td></tr>
+          <tr><td class="label">Kit Distribution</td><td>${runner["KIT DISTRIBUTION"] === "YES" ? "Yes" : "Kit not collected"}</td></tr>
+          <tr><td class="label">Received By</td><td>${runner["KIT DISTRIBUTION RECIEVE"] || "—"}</td></tr>
+        </table>
+      `;
+    } else {
+      out.style.display = "none";
+      notFound.innerHTML = `<p>🚫 Runner not found. Please check the BIB or EXTERNAL_ID again.</p>`;
+    }
+  }
+
+  function promptKitDistribution() {
+    const input = normalize(document.getElementById("bibInput").value);
+    if (!input) {
+      alert("Please enter BIB or EXTERNAL_ID first.");
+      return;
+    }
+
+    const confirmYes = confirm("Has this runner collected the kit?");
+    if (confirmYes) {
+      const receiver = prompt("Enter collector BIB or Mobile Number:");
+      updateKitDistribution(input, receiver);
+    }
+  }
+
+  function updateKitDistribution(identifier, receiver) {
+    fetch("https://script.google.com/macros/s/AKfycbyVPx3KpmC9iRoIHKWS0lfIPEinkBxmmfFpU8zdEr1BhwEOHgDq-jFC2E6X2nKjVLdiow/exec", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: identifier,
+        kit: "YES",
+        receive_by: receiver
+      })
+    })
+      .then(res => res.json())
+      .then(res => {
+        if (res.success) {
+          alert("Kit Distribution updated!");
+          searchRunner();
+        } else {
+          alert("Update failed.");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Error updating sheet.");
+      });
+  }
+</script>
+
+</body>
+</html>
