@@ -129,11 +129,12 @@
     }
     footer {
       background: var(--navy);
-      color: #ccc;
+      color: #ffffff;
       text-align: center;
       padding: 15px;
       margin-top: 40px;
       font-size: 15px;
+      font-weight: bold;
     }
     @media (max-width: 600px) {
       input[type="text"], button {
@@ -164,13 +165,8 @@
 </footer>
 
 <script>
-  let data15k = [], data75k = [];
-
   const url15k = "https://opensheet.vercel.app/1uHIbbjTQsw86j945z1fBHddKgQmNZ6fD6Lu0KysaC2M/EB%2015K";
   const url75k = "https://opensheet.vercel.app/1uHIbbjTQsw86j945z1fBHddKgQmNZ6fD6Lu0KysaC2M/EB7.5K";
-
-  fetch(url15k).then(res => res.json()).then(data => data15k = data);
-  fetch(url75k).then(res => res.json()).then(data => data75k = data);
 
   function normalize(str) {
     return (str || "").toString().trim().toLowerCase();
@@ -181,36 +177,43 @@
     const out = document.getElementById("output");
     const notFound = document.getElementById("not-found");
 
-    const allData = [...data15k, ...data75k];
+    Promise.all([
+      fetch(url15k).then(res => res.json()),
+      fetch(url75k).then(res => res.json())
+    ]).then(([fresh15k, fresh75k]) => {
+      const allData = [...fresh15k, ...fresh75k];
+      const runner = allData.find(r =>
+        normalize(r["BIB"]) === input || normalize(r["EXTERNAL_ID"]) === input
+      );
 
-    const runner = allData.find(r =>
-      normalize(r["BIB"]) === input || normalize(r["EXTERNAL_ID"]) === input
-    );
-
-    if (runner) {
-      notFound.innerHTML = "";
-      out.style.display = "block";
-      out.innerHTML = `
-        <img src="Rban-timing-logo.png" alt="Logo">
-        <h2>🏃 Runner Details</h2>
-        <table>
-          <tr><td class="label">Name</td><td>${runner.FIRST_NAME || ""} ${runner.LAST_NAME || ""}</td></tr>
-          <tr><td class="label">BIB</td><td>${runner.BIB || "—"}</td></tr>
-          <tr><td class="label">EXTERNAL ID</td><td>${runner.EXTERNAL_ID || "—"}</td></tr>
-          <tr><td class="label">Gender</td><td>${runner.GENDER || "—"}</td></tr>
-          <tr><td class="label">Race</td><td>${runner.RACE_NAME || "—"}</td></tr>
-          <tr><td class="label">T-Shirt</td><td>${runner["T-Shirt Size"] || "—"}</td></tr>
-          <tr><td class="label">Race Category</td><td>${runner["RACE CATEGORY"] || "—"}</td></tr>
-          <tr><td class="label">Mobile Number</td><td>${runner.PHONE || "—"}</td></tr>
-          <tr><td class="label">E-Mail</td><td>${runner.EMAIL || "—"}</td></tr>
-          <tr><td class="label">Kit Distribution</td><td>${runner["KIT DISTRIBUTION"] === "Done" ? "✅ Done" : "❌ Not Collected"}</td></tr>
-          <tr><td class="label">Collected By</td><td>${runner["KIT DISTRIBUTION RECIEVE"] || "—"}</td></tr>
-        </table>
-      `;
-    } else {
-      out.style.display = "none";
-      notFound.innerHTML = `<p>🚫 Runner not found. Please check the BIB or EXTERNAL_ID again.</p>`;
-    }
+      if (runner) {
+        notFound.innerHTML = "";
+        out.style.display = "block";
+        out.innerHTML = `
+          <img src="Rban-timing-logo.png" alt="Logo">
+          <h2>🏃 Runner Details</h2>
+          <table>
+            <tr><td class="label">Name</td><td>${runner.FIRST_NAME || ""} ${runner.LAST_NAME || ""}</td></tr>
+            <tr><td class="label">BIB</td><td>${runner.BIB || "—"}</td></tr>
+            <tr><td class="label">EXTERNAL ID</td><td>${runner.EXTERNAL_ID || "—"}</td></tr>
+            <tr><td class="label">Gender</td><td>${runner.GENDER || "—"}</td></tr>
+            <tr><td class="label">Race</td><td>${runner.RACE_NAME || "—"}</td></tr>
+            <tr><td class="label">T-Shirt</td><td>${runner["T-Shirt Size"] || "—"}</td></tr>
+            <tr><td class="label">Race Category</td><td>${runner["RACE CATEGORY"] || "—"}</td></tr>
+            <tr><td class="label">Mobile Number</td><td>${runner.PHONE || "—"}</td></tr>
+            <tr><td class="label">E-Mail</td><td>${runner.EMAIL || "—"}</td></tr>
+            <tr><td class="label">Kit Distribution</td><td>${runner["KIT DISTRIBUTION"] === "Done" ? "✅ Done" : "❌ Not Collected"}</td></tr>
+            <tr><td class="label">Collected By</td><td>${runner["KIT DISTRIBUTION RECIEVE"] || "—"}</td></tr>
+          </table>
+        `;
+      } else {
+        out.style.display = "none";
+        notFound.innerHTML = `<p>🚫 Runner not found. Please check the BIB or EXTERNAL_ID again.</p>`;
+      }
+    }).catch(error => {
+      notFound.innerHTML = `<p>❌ Error fetching data. Try again later.</p>`;
+      console.error("Fetch error:", error);
+    });
   }
 </script>
 
