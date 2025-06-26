@@ -153,7 +153,7 @@
 </header>
 
 <div class="search-box">
-  <input type="text" id="bibInput" placeholder="Enter BIB or EXTERNAL_ID">
+  <input type="text" id="bibInput" placeholder="Enter BIB or ORDER_ID">
   <button onclick="searchRunner()">Search</button>
 </div>
 
@@ -191,19 +191,19 @@
         out.style.display = "block";
         out.innerHTML = `
           <img src="Rban-timing-logo.png" alt="Logo">
-          <h2>🏃 Runner Details</h2>
+          <h1>ATHLETE DETAILS</h1>
           <table>
-            <tr><td class="label">Name</td><td>${runner.FIRST_NAME || ""} ${runner.LAST_NAME || ""}</td></tr>
+            <tr><td class="label">NAME</td><td>${runner.FIRST_NAME || ""} ${runner.LAST_NAME || ""}</td></tr>
             <tr><td class="label">BIB</td><td>${runner.BIB || "—"}</td></tr>
             <tr><td class="label">EXTERNAL ID</td><td>${runner.EXTERNAL_ID || "—"}</td></tr>
-            <tr><td class="label">Gender</td><td>${runner.GENDER || "—"}</td></tr>
-            <tr><td class="label">Race</td><td>${runner.RACE_NAME || "—"}</td></tr>
-            <tr><td class="label">T-Shirt</td><td>${runner["T-Shirt Size"] || "—"}</td></tr>
-            <tr><td class="label">Race Category</td><td>${runner["RACE CATEGORY"] || "—"}</td></tr>
-            <tr><td class="label">Mobile Number</td><td>${runner.PHONE || "—"}</td></tr>
-            <tr><td class="label">E-Mail</td><td>${runner.EMAIL || "—"}</td></tr>
-            <tr><td class="label">Kit Distribution</td><td>${runner["KIT DISTRIBUTION"] === "Done" ? "✅ Done" : "❌ Not Collected"}</td></tr>
-            <tr><td class="label">Collected By</td><td>${runner["KIT DISTRIBUTION RECIEVE"] || "—"}</td></tr>
+            <tr><td class="label">GENDER</td><td>${runner.GENDER || "—"}</td></tr>
+            <tr><td class="label">RACE</td><td>${runner.RACE_NAME || "—"}</td></tr>
+            <tr><td class="label">T-SHIRT</td><td>${runner["T-Shirt Size"] || "—"}</td></tr>
+            <tr><td class="label">RACE CATEGORY</td><td>${runner["RACE CATEGORY"] || "—"}</td></tr>
+            <tr><td class="label">MOBILE NUMBER</td><td>${runner.PHONE || "—"}</td></tr>
+            <tr><td class="label">E-MAIL</td><td>${runner.EMAIL || "—"}</td></tr>
+            <tr><td class="label">KIT DISTRIBUTION</td><td>${runner["KIT DISTRIBUTION"] === "Done" ? "✅ Done" : "❌ Not Collected"}</td></tr>
+            <tr><td class="label">COLLECTED BY</td><td>${runner["KIT DISTRIBUTION RECIEVE"] || "—"}</td></tr>
           </table>
         `;
       } else {
